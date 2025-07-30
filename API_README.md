@@ -19,7 +19,7 @@ curl -X POST http://localhost:3000/api/auth/login \
   -c cookies.txt
 ```
 
-Use the returned session cookie for subsequent requests.
+Use the returned session cookie for subsequent requests. The server uses session-based authentication with cookies.
 
 ---
 
@@ -228,7 +228,7 @@ GET /api/schema/:filename
 
 **Example:**
 ```bash
-curl http://localhost:3000/api/schema/about
+curl http://localhost:3000/api/schema/about.json
 ```
 
 ### Create/Update a Schema
@@ -238,11 +238,13 @@ POST /api/schema/:filename
 
 **Example:**
 ```bash
-curl -X POST http://localhost:3000/api/schema/about \
+curl -X POST http://localhost:3000/api/schema/about.json \
   -H "Content-Type: application/json" \
   -d '{"schema":{"type":"object","properties":{"title":{"type":"string"}}}}' \
   -b cookies.txt
 ```
+
+**Note:** The schema is automatically reloaded after creation/update, so validation will work immediately.
 
 ### Delete a Schema
 ```bash
@@ -251,7 +253,7 @@ DELETE /api/schema/:filename
 
 **Example:**
 ```bash
-curl -X DELETE http://localhost:3000/api/schema/about \
+curl -X DELETE http://localhost:3000/api/schema/about.json \
   -b cookies.txt
 ```
 
@@ -340,7 +342,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 
 2. **Create a schema:**
 ```bash
-curl -X POST http://localhost:3000/api/schema/user \
+curl -X POST http://localhost:3000/api/schema/user.json \
   -H "Content-Type: application/json" \
   -d '{"schema":{"type":"object","properties":{"name":{"type":"string"},"email":{"type":"string","format":"email"}},"required":["name","email"]}}' \
   -b cookies.txt
@@ -348,7 +350,7 @@ curl -X POST http://localhost:3000/api/schema/user \
 
 3. **Create data with validation:**
 ```bash
-curl -X POST http://localhost:3000/api/file/user \
+curl -X POST http://localhost:3000/api/file/user.json \
   -H "Content-Type: application/json" \
   -d '{"data":{"name":"John Doe","email":"john@example.com"}}' \
   -b cookies.txt
@@ -356,12 +358,12 @@ curl -X POST http://localhost:3000/api/file/user \
 
 4. **Read the data:**
 ```bash
-curl http://localhost:3000/api/file/user
+curl http://localhost:3000/api/file/user.json
 ```
 
 5. **Update the data:**
 ```bash
-curl -X PATCH http://localhost:3000/api/file/user \
+curl -X PATCH http://localhost:3000/api/file/user.json \
   -H "Content-Type: application/json" \
   -d '{"data":{"name":"Jane Doe"}}' \
   -b cookies.txt
@@ -408,6 +410,7 @@ curl -X PATCH http://localhost:3000/api/file/user \
 - **Schema Validation**: Optional but recommended for data integrity
 - **Session Management**: Sessions expire after 24 hours
 - **File Backups**: Automatic backups created before modifications
+- **File Extensions**: The API automatically handles .json extensions for consistency
 
 ---
 
@@ -444,6 +447,8 @@ const writeFile = async (filename, data) => {
   });
   return response.json();
 };
+
+// Note: Always include .json extension in filenames for consistency
 ```
 
 ### cURL Examples
@@ -451,8 +456,7 @@ const writeFile = async (filename, data) => {
 # With session cookie
 curl -b cookies.txt http://localhost:3000/api/files
 
-# With Bearer token
-curl -H "Authorization: Bearer sessionId" http://localhost:3000/api/files
+# Note: This API uses session-based authentication with cookies, not Bearer tokens
 ```
 
 ---
