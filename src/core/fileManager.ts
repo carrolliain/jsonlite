@@ -28,7 +28,9 @@ export class FileManager {
 
   private getFilePath(filename: string): string {
     const sanitizedFilename = this.sanitizeFilename(filename);
-    return path.join(this.dataDir, `${sanitizedFilename}.json`);
+    // Remove .json extension if already present
+    const baseFilename = sanitizedFilename.replace(/\.json$/i, '');
+    return path.join(this.dataDir, `${baseFilename}.json`);
   }
 
   private sanitizeFilename(filename: string): string {
