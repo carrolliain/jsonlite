@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
     "init": "ts-node src/cli/index.ts init",
-    "cli": "ts-node src/cli/index.ts"
+    "cli": "ts-node src/cli/index.ts",
+    "test": "node test-api.js"
   },
   "keywords": [
     "json",
