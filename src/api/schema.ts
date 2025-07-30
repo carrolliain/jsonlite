@@ -88,22 +88,24 @@ export function createSchemaRoutes(
     }
   });
 
-  // GET /api/schemas - List all available schemas
+  return router;
+} 
+
+// GET /api/schemas - List all available schemas
+export function createSchemasListRoute(schemasDir: string = './schemas') {
+  const router = Router();
   router.get('/', (req: Request, res: Response) => {
     try {
       if (!fs.existsSync(schemasDir)) {
         return res.json({ schemas: [] });
       }
-
       const schemaFiles = fs.readdirSync(schemasDir)
         .filter(file => file.endsWith('.json'))
         .map(file => file.replace('.json', ''));
-      
       res.json({ schemas: schemaFiles });
     } catch (error) {
       res.status(500).json({ error: 'Failed to list schemas' });
     }
   });
-
   return router;
 } 

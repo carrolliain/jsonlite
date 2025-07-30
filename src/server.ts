@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { ConfigLoader } from './core/config';
 import { FileManager } from './core/fileManager';
 import { AuthManager } from './core/auth';
@@ -7,13 +8,14 @@ import { SchemaValidator } from './core/schema';
 import { createFileRoutes } from './api/files';
 import { createAuthRoutes } from './api/auth';
 import { createSchemaRoutes } from './api/schema';
+import { createSchemasListRoute } from './api/schema';
 
 export class LiteJSONServer {
   private app: express.Application;
   private config: any;
-  private fileManager: FileManager;
-  private authManager: AuthManager;
-  private schemaValidator: SchemaValidator;
+  private fileManager!: FileManager;
+  private authManager!: AuthManager;
+  private schemaValidator!: SchemaValidator;
 
   constructor() {
     this.app = express();
@@ -25,6 +27,7 @@ export class LiteJSONServer {
 
   private setupMiddleware(): void {
     this.app.use(cors());
+    this.app.use(cookieParser());
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true }));
   }
@@ -73,8 +76,20 @@ export class LiteJSONServer {
       createFileRoutes(this.fileManager, this.schemaValidator, this.authManager)
     );
 
+    // GET /api/files - List all available files
+    this.app.get('/api/files', (req, res) => {
+      const result = this.fileManager.listFiles();
+      
+      if (!result.success) {
+        return res.status(500).json({ error: result.error });
+      }
+
+      res.json({ files: result.data });
+    });
+
     this.app.use('/api/auth', createAuthRoutes(this.authManager));
     this.app.use('/api/schema', createSchemaRoutes(this.schemaValidator, this.authManager, this.config.schemasDir));
+    this.app.use('/api/schemas', createSchemasListRoute(this.config.schemasDir));
 
     // Health check endpoint
     this.app.get('/health', (req, res) => {
