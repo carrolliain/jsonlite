@@ -11,9 +11,9 @@ import { createSchemaRoutes } from './api/schema';
 export class LiteJSONServer {
   private app: express.Application;
   private config: any;
-  private fileManager: FileManager;
-  private authManager: AuthManager;
-  private schemaValidator: SchemaValidator;
+  private fileManager!: FileManager;
+  private authManager!: AuthManager;
+  private schemaValidator!: SchemaValidator;
 
   constructor() {
     this.app = express();
